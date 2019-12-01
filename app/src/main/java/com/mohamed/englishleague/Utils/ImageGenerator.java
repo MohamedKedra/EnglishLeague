@@ -1,4 +1,4 @@
-package com.mohamed.englishleague;
+package com.mohamed.englishleague.Utils;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -7,6 +7,8 @@ import android.graphics.Shader;
 import android.graphics.drawable.Drawable;
 import android.widget.ImageView;
 
+
+import com.mohamed.englishleague.R;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -28,6 +30,7 @@ public class ImageGenerator {
             client = new OkHttpClient.Builder()
                     .cache(new Cache(context.getCacheDir(), 5 * 1024 * 1024))
                     .build();
+            
         }
         Request request = new Request.Builder().url(url).build();
         client.newCall(request).enqueue(new Callback() {

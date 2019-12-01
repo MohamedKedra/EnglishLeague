@@ -1,4 +1,4 @@
-package com.mohamed.englishleague;
+package com.mohamed.englishleague.Models;
 
 import java.util.List;
 

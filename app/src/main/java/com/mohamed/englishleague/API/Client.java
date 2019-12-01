@@ -1,11 +1,13 @@
-package com.mohamed.englishleague;
+package com.mohamed.englishleague.API;
+
+import com.mohamed.englishleague.Utils.Constants;
 
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 public class Client {
 
-    static LeagueService getService() {
+    public static LeagueService getService() {
 
         return new Retrofit.Builder()
                 .baseUrl(Constants.BaseUrl)
