@@ -19,7 +19,7 @@ public class DetailsViewModel extends AndroidViewModel {
 
     public DetailsViewModel(@NonNull Application application) {
         super(application);
-        repository = new DetailsRepository();
+        repository = new DetailsRepository(application.getApplicationContext());
     }
 
     public LiveData<List<Player>> getTeamPlayers(int teamId){

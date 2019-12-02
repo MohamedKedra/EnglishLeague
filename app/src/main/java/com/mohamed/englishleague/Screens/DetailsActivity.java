@@ -23,6 +23,7 @@ import com.mohamed.englishleague.Models.Team;
 import com.mohamed.englishleague.R;
 import com.mohamed.englishleague.Utils.Constants;
 import com.mohamed.englishleague.ViewModels.DetailsViewModel;
+import com.squareup.picasso.Picasso;
 
 import java.util.List;
 
@@ -68,6 +69,7 @@ public class DetailsActivity extends AppCompatActivity {
 
     private void drawDetails() {
 
+  //      Picasso.with(this).load("http://i.imgur.com/DvpvklR.png").into(avatar);
         team = getIntent().getExtras().getParcelable(Constants.TeamKey);
         title.setText(team.getName());
         venue.setText(team.getVenue());

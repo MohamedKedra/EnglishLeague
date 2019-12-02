@@ -1,5 +1,7 @@
 package com.mohamed.englishleague.Repositories;
 
+import android.content.Context;
+
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
@@ -19,9 +21,9 @@ public class DetailsRepository {
 
     LeagueService service;
 
-    public DetailsRepository(){
+    public DetailsRepository(Context context){
 
-        service = Client.getService();
+        service = Client.getService(context);
     }
 
     public LiveData<List<Player>> getTeamPlayers(String token , int id){

@@ -19,7 +19,7 @@ public class MainViewModel extends AndroidViewModel {
 
     public MainViewModel(@NonNull Application application) {
         super(application);
-        repository = new MainRepository();
+        repository = new MainRepository(application.getApplicationContext());
     }
 
     public LiveData<List<Team>> getAllTeams(){
