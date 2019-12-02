@@ -73,7 +73,7 @@ public class DetailsActivity extends AppCompatActivity {
     private void drawDetails() {
 
         team = getIntent().getExtras().getParcelable(Constants.TeamKey);
-        initGlide().load(R.mipmap.ic_launcher_round).into(avatar);
+        initGlide().load("http://upload.wikimedia.org/wikipedia/en/5/53/Arsenal_FC.svg").into(avatar);
         title.setText(team.getName());
         venue.setText(team.getVenue());
         color.setText(team.getClubColors());

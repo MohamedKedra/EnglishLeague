@@ -8,8 +8,10 @@ import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.content.res.Configuration;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Parcelable;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.ProgressBar;
@@ -33,6 +35,11 @@ public class MainActivity extends AppCompatActivity {
     FrameLayout loading;
     List<Team> teamsList;
     static int page = 1;
+    final static String StateKey = "state";
+    final static String PosKey = "pos";
+    final static String IndexKey = "index";
+    Parcelable stateData;
+    int index = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,7 +55,41 @@ public class MainActivity extends AppCompatActivity {
         teamsRecycler = findViewById(R.id.rv_teams);
         progressBar = findViewById(R.id.pb_progressbar);
         loading = findViewById(R.id.lay_loading);
-        layoutManager = new GridLayoutManager(this, 2);
+        if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE){
+            layoutManager = new GridLayoutManager(this, 3);
+        }else {
+            layoutManager = new GridLayoutManager(this, 2);
+        }
+
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        stateData = layoutManager.onSaveInstanceState();
+        outState.putParcelable(StateKey,stateData);
+        int pos = ((GridLayoutManager)layoutManager).findFirstCompletelyVisibleItemPosition();
+        if (pos == -1){
+            pos = ((GridLayoutManager)layoutManager).findLastVisibleItemPosition();
+        }
+        outState.putInt(PosKey,pos);
+        outState.putInt(IndexKey,index);
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+        if (savedInstanceState != null){
+            stateData = savedInstanceState.getParcelable(StateKey);
+        }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (stateData != null){
+            layoutManager.onRestoreInstanceState(stateData);
+        }
     }
 
     public void displayAllTeams() {
