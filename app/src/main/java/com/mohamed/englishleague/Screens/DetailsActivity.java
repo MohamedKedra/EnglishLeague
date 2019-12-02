@@ -10,12 +10,14 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.RequestManager;
@@ -24,11 +26,14 @@ import com.mohamed.englishleague.Adapters.PlayerAdapter;
 import com.mohamed.englishleague.Models.Player;
 import com.mohamed.englishleague.Models.Team;
 import com.mohamed.englishleague.R;
+import com.mohamed.englishleague.Utils.AppNetwork;
 import com.mohamed.englishleague.Utils.Constants;
 import com.mohamed.englishleague.ViewModels.DetailsViewModel;
 import com.squareup.picasso.Picasso;
 
 import java.util.List;
+
+import butterknife.ButterKnife;
 
 public class DetailsActivity extends AppCompatActivity {
 
@@ -48,12 +53,15 @@ public class DetailsActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_details);
-
+//        ButterKnife.bind(this);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_back);
         initViews();
 
         drawDetails();
 
         expandPlayers();
+
     }
 
     private void initViews() {
@@ -68,12 +76,25 @@ public class DetailsActivity extends AppCompatActivity {
         progressBar = findViewById(R.id.pb_progressbar);
         layoutManager = new LinearLayoutManager(this);
         layoutList = findViewById(R.id.lay_players);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+
+        if (item.getItemId() == android.R.id.home){
+            finish();
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     private void drawDetails() {
 
         team = getIntent().getExtras().getParcelable(Constants.TeamKey);
-        initGlide().load("http://upload.wikimedia.org/wikipedia/en/5/53/Arsenal_FC.svg").into(avatar);
+        Glide.with(this).load(team.getCrestUrl())
+                .placeholder(R.drawable.team_holder)
+                .error(R.drawable.team_holder)
+                .into(avatar);
         title.setText(team.getName());
         venue.setText(team.getVenue());
         color.setText(team.getClubColors());
@@ -87,29 +108,24 @@ public class DetailsActivity extends AppCompatActivity {
         });
     }
 
-    private RequestManager initGlide(){
-        RequestOptions options = new RequestOptions()
-                .placeholder(R.drawable.ic_launcher_background)
-                .error(R.drawable.ic_launcher_background);
-
-        return Glide.with(this)
-                .setDefaultRequestOptions(options);
-    }
-
     private void expandPlayers() {
 
         expanded.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (layoutList.getVisibility() == View.GONE) {
-                    layoutList.setVisibility(View.VISIBLE);
-                    arrow.setImageDrawable(getDrawable(R.drawable.ic_arrow_opened));
-                    progressBar.setVisibility(View.VISIBLE);
-                    displayPlayers();
-                } else {
-                    layoutList.setVisibility(View.GONE);
-                    arrow.setImageDrawable(getDrawable(R.drawable.ic_arrow_closed));
-                    recyclerView.setVisibility(View.GONE);
+                if (AppNetwork.hasNetwork()){
+                    if (layoutList.getVisibility() == View.GONE) {
+                        layoutList.setVisibility(View.VISIBLE);
+                        arrow.setImageDrawable(getDrawable(R.drawable.ic_arrow_opened));
+                        progressBar.setVisibility(View.VISIBLE);
+                        displayPlayers();
+                    } else {
+                        layoutList.setVisibility(View.GONE);
+                        arrow.setImageDrawable(getDrawable(R.drawable.ic_arrow_closed));
+                        recyclerView.setVisibility(View.GONE);
+                    }
+                }else {
+                    Toast.makeText(DetailsActivity.this,"No Internet Connection",Toast.LENGTH_LONG).show();
                 }
             }
         });
@@ -123,9 +139,9 @@ public class DetailsActivity extends AppCompatActivity {
     Observer<List<Player>> observer = new Observer<List<Player>>() {
         @Override
         public void onChanged(List<Player> players) {
-            System.out.println("p : "+players.size());
+            System.out.println("p : " + players.size());
             progressBar.setVisibility(View.GONE);
-            if (players != null){
+            if (players != null) {
                 recyclerView.setVisibility(View.VISIBLE);
                 adapter = new PlayerAdapter(DetailsActivity.this, players);
                 recyclerView.setAdapter(adapter);

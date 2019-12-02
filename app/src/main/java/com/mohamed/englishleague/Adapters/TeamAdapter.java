@@ -16,10 +16,8 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import com.mohamed.englishleague.Screens.DetailsActivity;
 import com.mohamed.englishleague.Utils.Constants;
-import com.mohamed.englishleague.Utils.ImageGenerator;
 import com.mohamed.englishleague.Models.Team;
 import com.mohamed.englishleague.R;
-import com.squareup.picasso.Picasso;
 
 import java.util.List;
 
@@ -45,9 +43,10 @@ public class TeamAdapter extends RecyclerView.Adapter<TeamAdapter.TeamHolder> {
         final Team team = teams.get(position);
         if (team != null) {
 
-      //        Picasso.with(context).load("http://i.imgur.com/DvpvklR.png").into(holder.avatar);
-           // ImageGenerator.fetchImage(context, team.getCrestUrl(), holder.avatar);
-            Glide.with(context).load(R.mipmap.ic_launcher_round).into(holder.avatar);
+            Glide.with(context).load(team.getCrestUrl())
+                    .placeholder(R.drawable.team_holder)
+                    .error(R.drawable.team_holder)
+                    .into(holder.avatar);
             holder.name.setText(team.getName());
             holder.venue.setText(team.getVenue());
             holder.color.setText(team.getClubColors());

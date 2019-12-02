@@ -8,6 +8,7 @@
     tools:context=".Screens.MainActivity">
 
     <androidx.recyclerview.widget.RecyclerView
+        android:layout_margin="@dimen/small_margin"
         android:layout_gravity="center"
         android:id="@+id/rv_teams"
         android:layout_width="match_parent"
