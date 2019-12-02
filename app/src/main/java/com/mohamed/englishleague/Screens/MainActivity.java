@@ -41,7 +41,7 @@ public class MainActivity extends AppCompatActivity {
 
         initViews();
         displayAllTeams();
-        test();
+        paginating();
     }
 
     public void initViews() {
@@ -72,21 +72,17 @@ public class MainActivity extends AppCompatActivity {
 
     public boolean isLastItemDisplayed() {
 
-
         if (teamsRecycler.getAdapter().getItemCount() != 0) {
-
             int lastItemPosition = ((LinearLayoutManager) teamsRecycler.getLayoutManager()).findLastCompletelyVisibleItemPosition();
-            System.out.println("scroll "+lastItemPosition+ " and "+teamsRecycler.getAdapter().getItemCount());
-            if (lastItemPosition != RecyclerView.NO_POSITION && lastItemPosition == teamsRecycler.getAdapter().getItemCount() - 1) {
-                System.out.println("scroll ok");
+             if (lastItemPosition != RecyclerView.NO_POSITION && lastItemPosition == teamsRecycler.getAdapter().getItemCount() - 1) {
+
                 return true;
             }
-            System.out.println("scroll no");
         }
         return false;
     }
 
-    public void test() {
+    public void paginating() {
         teamsRecycler.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
             public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {
@@ -98,7 +94,6 @@ public class MainActivity extends AppCompatActivity {
             public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
                 super.onScrolled(recyclerView, dx, dy);
                 if (isLastItemDisplayed()){
-                    System.out.println("scroll page "+page);
                     loading.setVisibility(View.VISIBLE);
                     new Handler().postDelayed(new Runnable() {
                         @Override
@@ -110,7 +105,6 @@ public class MainActivity extends AppCompatActivity {
                                 teamsRecycler.setLayoutManager(layoutManager);
                                 teamsRecycler.scrollToPosition((page - 1) * 6 );
                                 page++;
-                                System.out.println("scroll more");
                             }
                         }
                     },1000);
@@ -122,7 +116,6 @@ public class MainActivity extends AppCompatActivity {
     public List<Team> getListFromPage(List<Team> teams ,int page){
 
         List<Team> newList = new ArrayList<>();
-        System.out.println("scroll "+page);
         int index = teams.size() > page * 6 ? page * 6: teams.size();
         for (int i = 0; i < index; i++ ){
             newList.add(teams.get(i));

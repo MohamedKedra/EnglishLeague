@@ -47,6 +47,7 @@ public class TeamAdapter extends RecyclerView.Adapter<TeamAdapter.TeamHolder> {
 
       //        Picasso.with(context).load("http://i.imgur.com/DvpvklR.png").into(holder.avatar);
            // ImageGenerator.fetchImage(context, team.getCrestUrl(), holder.avatar);
+            Glide.with(context).load(R.mipmap.ic_launcher_round).into(holder.avatar);
             holder.name.setText(team.getName());
             holder.venue.setText(team.getVenue());
             holder.color.setText(team.getClubColors());

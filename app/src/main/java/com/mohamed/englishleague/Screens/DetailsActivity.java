@@ -17,6 +17,9 @@ import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.RequestManager;
+import com.bumptech.glide.request.RequestOptions;
 import com.mohamed.englishleague.Adapters.PlayerAdapter;
 import com.mohamed.englishleague.Models.Player;
 import com.mohamed.englishleague.Models.Team;
@@ -69,8 +72,8 @@ public class DetailsActivity extends AppCompatActivity {
 
     private void drawDetails() {
 
-  //      Picasso.with(this).load("http://i.imgur.com/DvpvklR.png").into(avatar);
         team = getIntent().getExtras().getParcelable(Constants.TeamKey);
+        initGlide().load(R.mipmap.ic_launcher_round).into(avatar);
         title.setText(team.getName());
         venue.setText(team.getVenue());
         color.setText(team.getClubColors());
@@ -84,6 +87,14 @@ public class DetailsActivity extends AppCompatActivity {
         });
     }
 
+    private RequestManager initGlide(){
+        RequestOptions options = new RequestOptions()
+                .placeholder(R.drawable.ic_launcher_background)
+                .error(R.drawable.ic_launcher_background);
+
+        return Glide.with(this)
+                .setDefaultRequestOptions(options);
+    }
 
     private void expandPlayers() {
 

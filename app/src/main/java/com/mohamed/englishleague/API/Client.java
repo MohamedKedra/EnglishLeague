@@ -1,7 +1,9 @@
 package com.mohamed.englishleague.API;
 
 import android.content.Context;
+import android.util.Log;
 
+import com.mohamed.englishleague.Utils.AppNetwork;
 import com.mohamed.englishleague.Utils.Constants;
 
 import java.io.File;
@@ -20,6 +22,9 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 public class Client {
 
+    public static final String HEADER_CACHE_CONTROL = "Cache-Control";
+    public static final String HEADER_PRAGMA = "Pragma";
+
     public static LeagueService getService(Context context) {
 
         return new Retrofit.Builder()
@@ -31,71 +36,64 @@ public class Client {
 
     private static OkHttpClient getInstance(Context context) {
 
-        HttpLoggingInterceptor interceptor = new HttpLoggingInterceptor();
-        interceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
         Cache cache = new Cache(new File(context.getCacheDir(),"offlineCache"),10 * 1024 * 1024);
         return new OkHttpClient.Builder()
                 .cache(cache)
-                .addInterceptor(interceptor)
-                .addNetworkInterceptor(provideCacheInterceptor())
-                .addInterceptor(provideOfflineCacheInterceptor())
+                .addInterceptor(httpLoggingInterceptor())
+                .addNetworkInterceptor(networkInterceptor())
+                .addInterceptor(offlineInterceptor())
                 .build();
     }
 
-
-    private static Interceptor provideCacheInterceptor() {
-
+    private static Interceptor offlineInterceptor() {
         return new Interceptor() {
             @Override
             public Response intercept(Chain chain) throws IOException {
                 Request request = chain.request();
-                Response originalResponse = chain.proceed(request);
-                String cacheControl = originalResponse.header("Cache-Control");
 
-                if (cacheControl == null || cacheControl.contains("no-store") || cacheControl.contains("no-cache") ||
-                        cacheControl.contains("must-revalidate") || cacheControl.contains("max-stale=0")) {
-
-
-                    CacheControl cc = new CacheControl.Builder()
-                            .maxStale(1, TimeUnit.DAYS)
+                if (!AppNetwork.hasNetwork()) {
+                    CacheControl cacheControl = new CacheControl.Builder()
+                            .maxStale(7, TimeUnit.DAYS)
                             .build();
 
                     request = request.newBuilder()
-                            .cacheControl(cc)
+                            .removeHeader(HEADER_PRAGMA)
+                            .removeHeader(HEADER_CACHE_CONTROL)
+                            .cacheControl(cacheControl)
                             .build();
-
-                    return chain.proceed(request);
-                } else {
-                    return originalResponse;
                 }
+
+                return chain.proceed(request);
             }
         };
-
     }
 
-    private static Interceptor provideOfflineCacheInterceptor() {
-
+    private static Interceptor networkInterceptor() {
         return new Interceptor() {
             @Override
             public Response intercept(Chain chain) throws IOException {
-                try {
-                    return chain.proceed(chain.request());
-                } catch (Exception e) {
 
+                Response response = chain.proceed(chain.request());
 
-                    CacheControl cacheControl = new CacheControl.Builder()
-                            .onlyIfCached()
-                            .maxStale(1, TimeUnit.DAYS)
-                            .build();
+                CacheControl cacheControl = new CacheControl.Builder()
+                        .maxAge(5, TimeUnit.SECONDS)
+                        .build();
 
-                    Request offlineRequest = chain.request().newBuilder()
-                            .cacheControl(cacheControl)
-                            .build();
-                    return chain.proceed(offlineRequest);
-                }
+                return response.newBuilder()
+                        .removeHeader(HEADER_PRAGMA)
+                        .removeHeader(HEADER_CACHE_CONTROL)
+                        .header(HEADER_CACHE_CONTROL, cacheControl.toString())
+                        .build();
             }
         };
+    }
 
+    private static HttpLoggingInterceptor httpLoggingInterceptor ()
+    {
+        HttpLoggingInterceptor httpLoggingInterceptor =
+                new HttpLoggingInterceptor();
+        httpLoggingInterceptor.setLevel( HttpLoggingInterceptor.Level.BODY);
+        return httpLoggingInterceptor;
     }
 
 }
