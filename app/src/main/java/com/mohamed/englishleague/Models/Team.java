@@ -3,8 +3,13 @@ package com.mohamed.englishleague.Models;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import androidx.room.Entity;
+import androidx.room.PrimaryKey;
+
+@Entity(tableName = "teams_table")
 public class Team implements Parcelable {
 
+    @PrimaryKey(autoGenerate = true)
     private int id;
     private String name;
     private String crestUrl;

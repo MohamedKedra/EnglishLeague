@@ -119,5 +119,13 @@
         app:layout_anchor="@id/cv_container"
         app:layout_anchorGravity="bottom" />
 
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fab"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_marginBottom="@dimen/fab_bottom"
+        android:layout_marginEnd="@dimen/margin"
+        app:srcCompat="@drawable/ic_favorite" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

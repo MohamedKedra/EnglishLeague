@@ -26,4 +26,8 @@ public class MainViewModel extends AndroidViewModel {
 
         return repository.getAllTeams(Constants.Token,Constants.LeagueId);
     }
+
+    public LiveData<List<Team>> getFavoriteTeams(){
+        return repository.getFavoriteTeams();
+    }
 }

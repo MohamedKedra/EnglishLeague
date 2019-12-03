@@ -8,6 +8,7 @@ import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 
 import com.mohamed.englishleague.Models.Player;
+import com.mohamed.englishleague.Models.Team;
 import com.mohamed.englishleague.Repositories.DetailsRepository;
 import com.mohamed.englishleague.Utils.Constants;
 
@@ -25,5 +26,17 @@ public class DetailsViewModel extends AndroidViewModel {
     public LiveData<List<Player>> getTeamPlayers(int teamId){
 
         return repository.getTeamPlayers(Constants.Token,teamId);
+    }
+
+    public void addTeam(Team team){
+        repository.addTeam(team);
+    }
+
+    public void DeleteTeam(Team team){
+        repository.deleteTeam(team);
+    }
+
+    public LiveData<List<Team>> getFavoriteTeams(){
+        return repository.getTeams();
     }
 }

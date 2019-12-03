@@ -8,6 +8,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.Intent;
+import android.content.res.ColorStateList;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.MenuItem;
@@ -22,6 +23,7 @@ import android.widget.Toast;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.RequestManager;
 import com.bumptech.glide.request.RequestOptions;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.mohamed.englishleague.Adapters.PlayerAdapter;
 import com.mohamed.englishleague.Models.Player;
 import com.mohamed.englishleague.Models.Team;
@@ -42,12 +44,14 @@ public class DetailsActivity extends AppCompatActivity {
     RecyclerView recyclerView;
     ProgressBar progressBar;
     CoordinatorLayout layoutList;
+    FloatingActionButton favorite;
     Button website;
     LinearLayout expanded;
     RecyclerView.LayoutManager layoutManager;
     Team team;
     DetailsViewModel detailsViewModel;
     PlayerAdapter adapter;
+    List<Team> teamsList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,12 +60,14 @@ public class DetailsActivity extends AppCompatActivity {
 //        ButterKnife.bind(this);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_back);
+
         initViews();
 
         drawDetails();
 
         expandPlayers();
 
+        addOrRemoveFavorite();
     }
 
     private void initViews() {
@@ -76,13 +82,70 @@ public class DetailsActivity extends AppCompatActivity {
         progressBar = findViewById(R.id.pb_progressbar);
         layoutManager = new LinearLayoutManager(this);
         layoutList = findViewById(R.id.lay_players);
+        favorite = findViewById(R.id.fab);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        detailsViewModel = ViewModelProviders.of(this).get(DetailsViewModel.class);
+    }
+
+    public void addOrRemoveFavorite() {
+
+        detailsViewModel.getFavoriteTeams().observe(DetailsActivity.this, new Observer<List<Team>>() {
+            @Override
+            public void onChanged(List<Team> teams) {
+                if (teams != null){
+                    for (Team t : teams) {
+                        if (team.getId() == t.getId()) {
+                            favorite.setSupportBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.colorRed)));
+                        }
+                    }
+                }else {
+                    favorite.setSupportBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.colorAccent)));
+                }
+            }
+        });
+
+        favorite.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                if (favorite.getBackgroundTintList().getDefaultColor() == getResources().getColor(R.color.colorRed)) {
+                    detailsViewModel.DeleteTeam(team);
+                    Toast.makeText(DetailsActivity.this, team.getName()+" is deleted", Toast.LENGTH_SHORT).show();
+                    favorite.setSupportBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.colorAccent)));
+                } else {
+                    detailsViewModel.addTeam(team);
+                    Toast.makeText(DetailsActivity.this, team.getName()+" is added", Toast.LENGTH_SHORT).show();
+                    favorite.setSupportBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.colorRed)));
+                }
+            }
+        });
+    }
+
+    private boolean isFavorite(int id) {
+        detailsViewModel.getFavoriteTeams().observe(this, new Observer<List<Team>>() {
+            @Override
+            public void onChanged(List<Team> teams) {
+                teamsList = teams;
+            }
+        });
+
+        if (teamsList == null){
+            return false;
+        }else{
+            for (Team team : teamsList) {
+                if (id == team.getId()) {
+
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
 
-        if (item.getItemId() == android.R.id.home){
+        if (item.getItemId() == android.R.id.home) {
             finish();
         }
         return super.onOptionsItemSelected(item);
@@ -113,7 +176,7 @@ public class DetailsActivity extends AppCompatActivity {
         expanded.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (AppNetwork.hasNetwork()){
+                if (AppNetwork.hasNetwork()) {
                     if (layoutList.getVisibility() == View.GONE) {
                         layoutList.setVisibility(View.VISIBLE);
                         arrow.setImageDrawable(getDrawable(R.drawable.ic_arrow_opened));
@@ -124,29 +187,25 @@ public class DetailsActivity extends AppCompatActivity {
                         arrow.setImageDrawable(getDrawable(R.drawable.ic_arrow_closed));
                         recyclerView.setVisibility(View.GONE);
                     }
-                }else {
-                    Toast.makeText(DetailsActivity.this,"No Internet Connection",Toast.LENGTH_LONG).show();
+                } else {
+                    Toast.makeText(DetailsActivity.this, "No Internet Connection", Toast.LENGTH_LONG).show();
                 }
             }
         });
     }
 
     public void displayPlayers() {
-        detailsViewModel = ViewModelProviders.of(this).get(DetailsViewModel.class);
-        detailsViewModel.getTeamPlayers(team.getId()).observe(this, observer);
-    }
-
-    Observer<List<Player>> observer = new Observer<List<Player>>() {
-        @Override
-        public void onChanged(List<Player> players) {
-            System.out.println("p : " + players.size());
-            progressBar.setVisibility(View.GONE);
-            if (players != null) {
-                recyclerView.setVisibility(View.VISIBLE);
-                adapter = new PlayerAdapter(DetailsActivity.this, players);
-                recyclerView.setAdapter(adapter);
-                recyclerView.setLayoutManager(layoutManager);
+        detailsViewModel.getTeamPlayers(team.getId()).observe(this, new Observer<List<Player>>() {
+            @Override
+            public void onChanged(List<Player> players) {
+                progressBar.setVisibility(View.GONE);
+                if (players != null) {
+                    recyclerView.setVisibility(View.VISIBLE);
+                    adapter = new PlayerAdapter(DetailsActivity.this, players);
+                    recyclerView.setAdapter(adapter);
+                    recyclerView.setLayoutManager(layoutManager);
+                }
             }
-        }
-    };
+        });
+    }
 }

@@ -7,6 +7,8 @@ import androidx.lifecycle.MutableLiveData;
 
 import com.mohamed.englishleague.API.Client;
 import com.mohamed.englishleague.API.LeagueService;
+import com.mohamed.englishleague.DB.AppDao;
+import com.mohamed.englishleague.DB.AppDatabase;
 import com.mohamed.englishleague.Models.LeagueResponse;
 import com.mohamed.englishleague.Models.Team;
 
@@ -19,9 +21,15 @@ import retrofit2.Response;
 public class MainRepository {
 
     LeagueService service;
+    AppDatabase instance;
+    AppDao dao;
+    LiveData<List<Team>> teams;
 
     public MainRepository(Context context){
         service = Client.getService(context);
+        instance = AppDatabase.getInstance(context);
+        dao = instance.appDao();
+        teams = dao.getFavoriteTeams();
     }
 
     public LiveData<List<Team>> getAllTeams(String token, int leagueId){
@@ -43,5 +51,10 @@ public class MainRepository {
         return teams;
     }
 
+
+    public LiveData<List<Team>> getFavoriteTeams() {
+
+        return teams;
+    }
 
 }
